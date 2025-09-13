@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>picciiiiik</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #1a1a1a;
+            --bubble-me: #2d2d2d;
+            --bubble-emon: #333333;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #404040;
+            --input-bg: #2d2d2d;
+        }
+        html, body { height: 100%; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif; }
+        body { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-primary); color: var(--text-primary); }
+        .chat-container { width: 100vw; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-primary); }
+        .chat-header { background: var(--bg-primary); border-bottom: 1px solid var(--border-color); color: var(--text-primary); padding: 1.25rem 1rem; text-align: center; z-index: 30; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .chat-box { flex: 1; padding: 1rem; padding-bottom: calc(1rem + 6rem + env(safe-area-inset-bottom, 0)); overflow-y: auto; scroll-behavior: smooth; background: var(--bg-primary); }
+        .message { max-width: 75%; margin: 0.5rem 0; padding: 0.75rem 1rem; border-radius: 1.5rem; clear: both; word-wrap: break-word; position: relative; white-space: pre-wrap; }
+        .me { background: var(--bubble-me); color: var(--text-primary); margin-left: auto; border-bottom-right-radius: 0.5rem; }
+        .emon { background: var(--bubble-emon); color: var(--text-primary); margin-right: auto; border-bottom-left-radius: 0.5rem; }
+        .message-time { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.8; margin-top: 0.5rem; float: right; margin-left: 1rem; }
+        .input-box { position: fixed; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0); display: flex; justify-content: center; align-items: center; padding: 1rem; background: var(--bg-primary); border-top: 1px solid var(--border-color); z-index: 50; }
+        .input-content-wrapper { display: flex; align-items: flex-end; width: 100%; max-width: 800px; gap: 0.75rem; }
+        .message-input-wrapper { flex: 1; display: flex; align-items: center; background: var(--input-bg); border-radius: 2rem; border: 1px solid var(--border-color); min-height: 3rem; }
+        .message-input { flex: 1; border: none; background: transparent; padding: 0.75rem 1rem; font-size: 1rem; outline: none; resize: none; max-height: 8rem; color: var(--text-primary); font-family: inherit; }
+        .send-button, .plus-button { width: 3rem; height: 3rem; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.25rem; transition: all 0.3s ease; border: 1px solid var(--border-color); cursor: pointer; }
+        .send-button { background: #007AFF; color: white; }
+        .plus-button { background: var(--input-bg); color: var(--text-primary); }
+        .send-button:disabled { background: var(--bg-secondary); color: var(--text-secondary); cursor: not-allowed; }
+        #sentNotification { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); padding: 1rem 2rem; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 2rem; color: var(--text-primary); font-weight: 600; z-index: 100; display: flex; align-items: center; gap: 0.75rem; transition: all 0.6s ease; opacity: 0; }
+        #sentNotification.show { top: 2rem; opacity: 1; }
+</style>
+</head>
+<body>
+<div class="chat-container">
+<div class="chat-header"><img class="w-12 h-12 rounded-full border-2 border-white shadow-md" src="https://raw.githubusercontent.com/emoneditz/pretty-rika423/main/3017c2ef1b7b654df7651bca2d90ecff.jpg"/>
+<div class="flex items-center justify-center gap-3 mb-1">
+<h3 class="font-bold text-xl tracking-wide">pretty Rika!!!</h3>
+</div>
+</div>
+<div class="chat-box" id="chatBox">
+<!-- Initial decoy messages will be added by JavaScript -->
+</div>
+<div id="sentNotification">
+<i class="fas fa-check-circle text-green-500"></i>
+<span>Message sent!</span>
+</div>
+<div class="input-box">
+<div class="input-content-wrapper">
+<div class="message-input-wrapper">
+<button class="plus-button" type="button"><i class="fas fa-paperclip"></i></button>
+<textarea class="message-input" id="msg" placeholder="Type a message..." rows="1"></textarea>
+</div>
+<button class="send-button" id="sendBtn" type="button"><i class="fas fa-paper-plane"></i></button>
+</div>
+</div>
+</div>
+
+<script>
+    // --- DECOY CHAT SCRIPT ---
+    const messageInput = document.getElementById('msg');
+    const sendBtn = document.getElementById('sendBtn');
+    const chatBox = document.getElementById('chatBox');
+    const sentNotification = document.getElementById('sentNotification');
+
+    // The secret message that unlocks the real chat.
+    const SECRET_KEY = "aaa";
+
+    // Function to display a fake message bubble on the screen
+    function displayFakeMessage(text, sender) {
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message', sender);
+        
+        const textContent = document.createElement('p');
+        textContent.textContent = text;
+        msgDiv.appendChild(textContent);
+
+        const timeDiv = document.createElement('div');
+        timeDiv.classList.add('message-time');
+        const displayDate = new Date();
+        timeDiv.textContent = displayDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        msgDiv.appendChild(timeDiv);
+        
+        chatBox.appendChild(msgDiv);
+        scrollToBottom();
+    }
+
+    // This function handles what happens when you click "send"
+    function handleSendMessage() {
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        if (message === SECRET_KEY) {
+            // If the message is the secret key, unlock the real chat
+            sessionStorage.setItem('isAuthenticated', 'true');
+            window.location.href = 'chat.html';
+        } else {
+            // If it's any other message, just pretend to send it
+            displayFakeMessage(message, 'me');
+            messageInput.value = '';
+            autoResizeTextarea();
+            updateSendButton();
+
+            // Show a fake "Message sent!" notification
+            sentNotification.classList.add('show');
+            setTimeout(() => {
+                sentNotification.classList.remove('show');
+            }, 2000);
+        }
+    }
+
+    // Helper functions to make the UI work smoothly
+    function scrollToBottom() {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    function autoResizeTextarea() {
+        messageInput.style.height = 'auto';
+        messageInput.style.height = `${Math.min(messageInput.scrollHeight, 128)}px`;
+    }
+    function updateSendButton() {
+        sendBtn.disabled = !(messageInput.value.trim().length > 0);
+    }
+
+    // --- Setup Listeners ---
+    sendBtn.onclick = handleSendMessage; // Main send button action
+    messageInput.addEventListener('keypress', e => { 
+        if (e.key === 'Enter' && !e.shiftKey) { 
+            e.preventDefault(); 
+            handleSendMessage(); 
+        } 
+    });
+    messageInput.addEventListener('input', () => { 
+        autoResizeTextarea(); 
+        updateSendButton(); 
+    });
+
+    // --- Initial Page Load ---
+    updateSendButton();
+    // Load the initial fake conversation to make it look real
+    displayFakeMessage("hello afu big fan!!! please reply 🤩!! ", "me");
+    displayFakeMessage("Thanks🌟", "emon");
+</script>
+</body>
+</html>
