@@ -638,12 +638,9 @@
 </button>
 </div>
 </div>
-<script>
-    // --- SECURED CHAT SCRIPT ---
-    // NOTE: All Telegram API logic has been moved to the Node.js backend.
-    // This script now communicates with `/api/...` endpoints.
-
-    const RIKA_ID = 6009819572; // This is okay to be public.
+<s<script>
+    // --- SECURED CHAT SCRIPT (v3 - Media Proxy Fix) ---
+    const RIKA_ID = 6009819572;
     const chatBox = document.getElementById('chatBox');
     const loadMoreBtn = document.getElementById('loadMore');
     const modalContainer = document.getElementById('modalContainer');
@@ -659,7 +656,6 @@
     const sentNotification = document.getElementById('sentNotification');
     const sentMessage = document.getElementById('sentMessage');
     const sentIcon = document.getElementById('sentIcon');
-    
     const messageActionMenu = document.getElementById('messageActionMenu');
     const quickReactions = document.getElementById('quickReactions');
     const replyBtn = document.getElementById('replyBtn');
@@ -670,20 +666,16 @@
     const replyingToText = document.getElementById('replyingToText');
     const replyCloseBtn = document.getElementById('replyCloseBtn');
     const emojiPickerContainer = document.getElementById('emojiPickerContainer');
-
     let chatHistory = [];
     let historyOffset = 0;
     let isLoadingHistory = false;
     let lastUpdateId = 0;
     let initialLoadComplete = false;
-    
     let activeMessageElement = null;
     let activeReplyMessage = null;
     const defaultReactions = ['🤣', '❤️', '👍', '👎', '🔥', '🥰'];
-    
-    let replyTimer = null; 
+    let replyTimer = null;
     let isConnectionActive = false;
-    
     function setSignalLight(color) {
         const light = document.getElementById('signal-light');
         light.className = '';
@@ -691,7 +683,6 @@
             light.classList.add(color);
         }
     }
-
     function loadChatHistory() {
         const storedHistory = localStorage.getItem('chatHistory');
         if (storedHistory) {
@@ -699,14 +690,12 @@
         }
         displayRecentMessages(20);
     }
-
     function saveChatHistory() {
         if (chatHistory.length > 50) {
             chatHistory = chatHistory.slice(chatHistory.length - 50);
         }
         localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
     }
-
     function displayRecentMessages(count = 20) {
         const recentMessages = chatHistory.slice(-count);
         let currentDate = '';
@@ -720,16 +709,15 @@
             displayMessage(msg, false);
         });
         chatBox.insertAdjacentElement('afterbegin', loadMoreBtn);
-        if (chatHistory.length > count) { 
-            loadMoreBtn.style.display = 'block'; 
-            historyOffset = count; 
-        } else { 
-            loadMoreBtn.style.display = 'none'; 
+        if (chatHistory.length > count) {
+            loadMoreBtn.style.display = 'block';
+            historyOffset = count;
+        } else {
+            loadMoreBtn.style.display = 'none';
         }
         initialLoadComplete = true;
         setTimeout(() => scrollToBottom(), 100);
     }
-
     function addDateSeparator(dateStr, append = false) {
         const separator = document.createElement('div');
         separator.classList.add('date-separator', 'text-center', 'my-4', 'relative');
@@ -740,7 +728,6 @@
             chatBox.insertBefore(separator, loadMoreBtn.nextSibling);
         }
     }
-
     function loadOlderMessages() {
         if (isLoadingHistory || historyOffset >= chatHistory.length) return;
         isLoadingHistory = true;
@@ -752,10 +739,10 @@
             const endIndex = chatHistory.length - historyOffset;
             if (startIndex < endIndex) {
                 const olderMessages = chatHistory.slice(startIndex, endIndex);
-                let lastDate = new Date(olderMessages[olderMessages.length-1].timestamp).toDateString();
+                let lastDate = new Date(olderMessages[olderMessages.length - 1].timestamp).toDateString();
                 olderMessages.reverse().forEach(msg => {
                     const messageDate = new Date(msg.timestamp).toDateString();
-                    if(messageDate !== lastDate) {
+                    if (messageDate !== lastDate) {
                         addDateSeparator(lastDate, false);
                         lastDate = messageDate;
                     }
@@ -764,13 +751,12 @@
                 historyOffset += messagesToLoad;
                 chatBox.scrollTop = chatBox.scrollHeight - oldScrollHeight;
             }
-            if (historyOffset >= chatHistory.length) 
-                loadMoreBtn.style.display = 'none'; 
+            if (historyOffset >= chatHistory.length)
+                loadMoreBtn.style.display = 'none';
             loadMoreBtn.innerHTML = '<i class="fas fa-arrow-up mr-2"></i>Load older messages';
             isLoadingHistory = false;
         }, 800);
     }
-
     function showSentStatus(message, type = 'success') {
         sentMessage.textContent = message;
         sentIcon.className = type === 'success' ? 'fas fa-check-circle text-green-500' : 'fas fa-exclamation-circle text-red-500';
@@ -779,7 +765,6 @@
             sentNotification.classList.remove('show');
         }, 3000);
     }
-
     function formatFileSize(bytes) {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -787,19 +772,17 @@
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
-
     function getFileIcon(fileName) {
         const ext = fileName.split('.').pop().toLowerCase();
-        const icons = { 
-            pdf: 'fa-solid fa-file-pdf', docx: 'fa-solid fa-file-word', txt: 'fa-solid fa-file-lines', 
+        const icons = {
+            pdf: 'fa-solid fa-file-pdf', docx: 'fa-solid fa-file-word', txt: 'fa-solid fa-file-lines',
             jpg: 'fa-solid fa-image', jpeg: 'fa-solid fa-image', png: 'fa-solid fa-image', gif: 'fa-solid fa-image',
-            mp4: 'fa-solid fa-file-video', mov: 'fa-solid fa-file-video', 
-            mp3: 'fa-solid fa-file-audio', 
-            zip: 'fa-solid fa-file-zipper' 
+            mp4: 'fa-solid fa-file-video', mov: 'fa-solid fa-file-video',
+            mp3: 'fa-solid fa-file-audio',
+            zip: 'fa-solid fa-file-zipper'
         };
         return icons[ext] || 'fa-solid fa-file';
     }
-
     function displayMessage(messageData, prepend = false) {
         const existingMsgDiv = document.querySelector(`div[data-message-id='${messageData.id}']`);
         if (existingMsgDiv) existingMsgDiv.remove();
@@ -869,7 +852,6 @@
             chatBox.appendChild(msgDiv);
         }
     }
-
     function addMessage(text, sender, mediaUrl = null, mediaType = 'image', fileName = null, fileSize = null, timestamp = Date.now(), replyToId = null, telegramMsgId = null) {
         const messageData = { text, sender, mediaUrl, mediaType, fileName, fileSize, timestamp, id: Date.now() + '' + Math.random(), reactions: {}, replyTo: replyToId, telegramMessageId: telegramMsgId };
         chatHistory.push(messageData);
@@ -880,7 +862,6 @@
         }
         return messageData;
     }
-
     function openMessageActionMenu(messageEl) {
         activeMessageElement = messageEl;
         messageActionMenu.classList.remove('hidden');
@@ -899,7 +880,6 @@
         messageActionMenu.style.top = `${top}px`;
         messageActionMenu.style.left = `${left}px`;
     }
-
     function closeMessageActionMenu() {
         if (!messageActionMenu.classList.contains('hidden')) {
             messageActionMenu.classList.add('hidden');
@@ -907,37 +887,34 @@
         }
         emojiPickerContainer.classList.add('hidden');
     }
-
     async function handleReaction(emoji) {
         if (!activeMessageElement) return;
         const messageId = activeMessageElement.dataset.messageId;
         const message = chatHistory.find(m => m.id == messageId);
         if (message) {
-             if (message.reactions[emoji]) { delete message.reactions[emoji]; } else { message.reactions[emoji] = 1; }
+            if (message.reactions[emoji]) { delete message.reactions[emoji]; } else { message.reactions[emoji] = 1; }
             saveChatHistory();
             const reactionsContainer = activeMessageElement.querySelector('.reactions-container');
             updateReactionsDisplay(reactionsContainer, message.reactions);
             if (message.telegramMessageId) {
                 const reactionPayload = Object.keys(message.reactions).map(em => ({ type: 'emoji', emoji: em }));
-                 try {
-                    await fetch('/api/setReaction', { 
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'application/json' }, 
-                        body: JSON.stringify({ message_id: message.telegramMessageId, reaction: reactionPayload }) 
+                try {
+                    await fetch('/api/setReaction', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message_id: message.telegramMessageId, reaction: reactionPayload })
                     });
                 } catch (err) {
-                     console.error("Failed to set reaction", err);
+                    console.error("Failed to set reaction", err);
                 }
             }
         }
         closeMessageActionMenu();
     }
-    
     function updateReactionsDisplay(container, reactions) {
         container.innerHTML = Object.keys(reactions).map(emoji => `<span class="reaction-pill">${emoji}</span>`).join('');
         container.classList.toggle('visible', Object.keys(reactions).length > 0);
     }
-    
     function copyMessageText() {
         if (!activeMessageElement) return;
         const textEl = activeMessageElement.querySelector('.message-text-content');
@@ -946,7 +923,6 @@
         } else { showSentStatus('No text to copy', 'error'); }
         closeMessageActionMenu();
     }
-    
     function setupReply() {
         if (!activeMessageElement) return;
         const messageId = activeMessageElement.dataset.messageId;
@@ -959,13 +935,10 @@
         }
         closeMessageActionMenu();
     }
-
     function cancelReply() { activeReplyMessage = null; replyingToBar.classList.remove('show'); }
-    
     function populateReactions() {
         quickReactions.innerHTML = defaultReactions.map(emoji => `<button class="reaction-emoji text-2xl transform hover:scale-125 transition-transform" onclick="event.stopPropagation(); handleReaction('${emoji}')">${emoji}</button>`).join('');
     }
-    
     async function deleteMessage() {
         if (!activeMessageElement) return;
         const elementToDelete = activeMessageElement;
@@ -976,17 +949,15 @@
             const messageToDelete = chatHistory[messageIndex];
             const truncatedContent = (messageToDelete.text || "Attachment").substring(0, 50);
             const notificationText = `"${truncatedContent}..." MESSAGE HAS BEEN DELETED`;
-            
             try {
-                await fetch('/api/deleteNotification', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ notificationText }) 
+                await fetch('/api/deleteNotification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notificationText })
                 });
             } catch (err) {
-                 console.error("Failed to send delete notification", err);
+                console.error("Failed to send delete notification", err);
             }
-
             chatHistory.splice(messageIndex, 1);
             saveChatHistory();
             elementToDelete.style.transition = 'opacity 0.4s, transform 0.4s';
@@ -996,55 +967,47 @@
             showSentStatus('Message removed from site!');
         }
     }
-
     function openImageModal(imageUrl) { fullImage.src = imageUrl; modalContainer.style.display = 'flex'; }
     function closeModal() { modalContainer.style.display = 'none'; }
     function scrollToBottom() { chatBox.scrollTop = chatBox.scrollHeight; }
     function openFileDialog() { fileInput.click(); }
-    
     async function sendMessage(textOverride = null) {
         const message = textOverride || messageInput.value.trim();
         const file = fileInput.files[0];
         if (file) { await sendFile(); return; }
         if (!message) return;
-        
         if (!isConnectionActive) {
             clearTimeout(replyTimer);
             setSignalLight('yellow');
             replyTimer = setTimeout(() => { setSignalLight('red'); }, 30000);
         }
-        
         const replyToId = activeReplyMessage ? activeReplyMessage.id : null;
         let fetchBody = { text: message };
-        if(activeReplyMessage && activeReplyMessage.telegramMessageId) {
+        if (activeReplyMessage && activeReplyMessage.telegramMessageId) {
             fetchBody.reply_parameters = { message_id: activeReplyMessage.telegramMessageId };
         }
-        
         const sentMessageData = addMessage(message, 'me', null, null, null, null, Date.now(), replyToId);
-        if(!textOverride) { messageInput.value = ''; autoResizeTextarea(); }
+        if (!textOverride) { messageInput.value = ''; autoResizeTextarea(); }
         cancelReply();
-        
         try {
-            const res = await fetch('/api/sendMessage', { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify(fetchBody) 
+            const res = await fetch('/api/sendMessage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(fetchBody)
             });
             const data = await res.json();
             if (!data.ok) throw new Error(data.description);
             sentMessageData.telegramMessageId = data.result.message_id;
             saveChatHistory();
-        } catch(err) {
+        } catch (err) {
             isConnectionActive = false; clearTimeout(replyTimer); setSignalLight('red');
             showSentStatus('Failed to send message', 'error');
         }
     }
-
     function autoResizeTextarea() {
         messageInput.style.height = 'auto';
         messageInput.style.height = `${Math.min(messageInput.scrollHeight, 128)}px`;
     }
-    
     async function sendFile() {
         const file = fileInput.files[0];
         if (!file) { showSentStatus('No file selected!', 'error'); return; }
@@ -1056,57 +1019,52 @@
         const caption = messageInput.value.trim();
         const mediaType = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('video/') ? 'video' : 'document');
         const replyToId = activeReplyMessage ? activeReplyMessage.id : null;
-        
         const sentMessageData = addMessage(caption, 'me', URL.createObjectURL(file), mediaType, file.name, file.size, Date.now(), replyToId);
-        
         const formData = new FormData();
         formData.append("file", file);
         if (caption) formData.append('caption', caption);
         if (activeReplyMessage && activeReplyMessage.telegramMessageId) {
             formData.append('reply_parameters', JSON.stringify({ message_id: activeReplyMessage.telegramMessageId }));
         }
-
         cancelReply(); messageInput.value = ''; autoResizeTextarea();
-
         try {
             const res = await fetch('/api/sendFile', { method: "POST", body: formData });
             const data = await res.json();
             if (!data.ok) throw new Error(data.description);
             sentMessageData.telegramMessageId = data.result.message_id;
             saveChatHistory();
-        } catch(err) {
+        } catch (err) {
             isConnectionActive = false; clearTimeout(replyTimer); setSignalLight('red');
             showSentStatus('Upload failed', 'error');
         }
         clearFileSelection();
     }
-
     function updateSendButton() {
         sendBtn.disabled = !(messageInput.value.trim().length > 0 || fileInput.files.length > 0);
     }
     function clearFileSelection() {
         fileInput.value = ''; fileInfoBar.classList.remove('show'); updateSendButton();
     }
-
     let pollRetryDelay = 1000;
     const MAX_POLL_RETRY_DELAY = 30000;
-
+    
+    // --- CORRECTED pollMessages function ---
     async function pollMessages() {
         try {
             const res = await fetch(`/api/getUpdates?offset=${lastUpdateId + 1}`);
             if (!res.ok) throw new Error(res.statusText);
             const data = await res.json();
-
-            pollRetryDelay = 1000; 
+            pollRetryDelay = 1000;
             if (data.ok && data.result.length > 0) {
                 let hadUpdateFromRika = false;
+                // Use a standard for loop to handle async operations correctly
                 for (const update of data.result) {
                     lastUpdateId = update.update_id;
                     const msg = update.message;
                     const reaction = update.message_reaction;
                     const isRelevantUpdate = (msg && msg.from.id === RIKA_ID) || (reaction && reaction.user.id === RIKA_ID);
-                    if(isRelevantUpdate) hadUpdateFromRika = true;
-                    if(msg && msg.from.id === RIKA_ID) {
+                    if (isRelevantUpdate) hadUpdateFromRika = true;
+                    if (msg && msg.from.id === RIKA_ID) {
                         if (msg.text && msg.text.includes("MESSAGE HAS BEEN DELETED")) continue;
                         const text = msg.text || msg.caption || '';
                         const time = msg.date * 1000;
@@ -1117,25 +1075,24 @@
                             if (originalMessage) replyToId = originalMessage.id;
                         }
                         if (fileData) {
-                             const fileInfoRes = await fetch('/api/getFile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file_id: fileData.file_id }) });
-                             const fileInfo = await fileInfoRes.json();
-                             if (!fileInfo.ok) continue;
-                             const url = fileInfo.result.file_path;
-                             const type = msg.photo ? 'image' : (msg.video ? 'video' : 'document');
-                             addMessage(text, 'emon', url, type, fileData.file_name, fileData.file_size, time, replyToId, msg.message_id);
+                            // ** THE FIX IS HERE **
+                            // We now create a URL pointing to our own media proxy
+                            const url = `/api/media?file_id=${fileData.file_id}`;
+                            const type = msg.photo ? 'image' : (msg.video ? 'video' : 'document');
+                            addMessage(text, 'emon', url, type, fileData.file_name, fileData.file_size, time, replyToId, msg.message_id);
                         } else if (text) {
                             addMessage(text, 'emon', null, null, null, null, time, replyToId, msg.message_id);
                         }
                     }
-                    if(reaction && reaction.user.id === RIKA_ID) {
+                    if (reaction && reaction.user.id === RIKA_ID) {
                         const message = chatHistory.find(m => m.telegramMessageId === reaction.message_id);
                         if (message) {
                             const newReactions = {};
-                            reaction.new_reaction.forEach(r => { if(r.type === 'emoji') newReactions[r.emoji] = 1; });
+                            reaction.new_reaction.forEach(r => { if (r.type === 'emoji') newReactions[r.emoji] = 1; });
                             message.reactions = newReactions;
                             saveChatHistory();
                             const messageEl = document.querySelector(`div[data-message-id='${message.id}']`);
-                            if(messageEl) {
+                            if (messageEl) {
                                 const reactionsContainer = messageEl.querySelector('.reactions-container');
                                 updateReactionsDisplay(reactionsContainer, message.reactions);
                             }
@@ -1143,16 +1100,16 @@
                     }
                 }
                 if (hadUpdateFromRika) {
-                     isConnectionActive = true; clearTimeout(replyTimer); setSignalLight('green');
+                    isConnectionActive = true; clearTimeout(replyTimer); setSignalLight('green');
                 }
             }
-            setTimeout(pollMessages, 1000);
         } catch (err) {
             isConnectionActive = false;
-            if (!replyTimer) setSignalLight('red'); 
+            if (!replyTimer) setSignalLight('red');
             console.error('Polling error:', err);
-            setTimeout(pollMessages, pollRetryDelay);
             pollRetryDelay = Math.min(pollRetryDelay * 2, MAX_POLL_RETRY_DELAY);
+        } finally {
+            setTimeout(pollMessages, isConnectionActive ? 1500 : pollRetryDelay);
         }
     }
 
@@ -1162,7 +1119,7 @@
     fileInput.addEventListener('change', e => {
         const file = e.target.files[0];
         if (file) {
-            fileNameDisplay.textContent = file.name.length > 20 ? `${file.name.substring(0,18)}...` : file.name;
+            fileNameDisplay.textContent = file.name.length > 20 ? `${file.name.substring(0, 18)}...` : file.name;
             fileSizeDisplay.textContent = formatFileSize(file.size);
             fileIconDisplay.className = `file-icon ${getFileIcon(file.name)}`;
             fileInfoBar.classList.add('show');
@@ -1183,7 +1140,7 @@
 
     populateReactions();
     loadChatHistory();
-    pollMessages();
+    pollMessages(); // Start the polling loop
     updateSendButton();
     setSignalLight('yellow'); 
 </script>
