@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-    <title>pretty rika</title>
+    <title>picciiiiik</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
     <style>
@@ -88,11 +88,22 @@
             const message = messageInput.value.trim();
             if (!message) return;
 
+            displayMessage(message, 'me');
+            sentNotification.classList.add('show');
+             setTimeout(() => {
+                sentNotification.classList.remove('show');
+            }, 2000);
+
+            const messageToSend = message;
+            messageInput.value = '';
+            autoResizeTextarea();
+            updateSendButton();
+
             try {
                 const response = await fetch('/api/verify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ secret: message })
+                    body: JSON.stringify({ secret: messageToSend })
                 });
 
                 const result = await response.json();
@@ -100,23 +111,9 @@
                 if (result.authenticated) {
                     sessionStorage.setItem('isAuthenticated', 'true');
                     window.location.href = 'chat.html';
-                } else {
-                    showDecoy();
                 }
             } catch (error) {
-                console.error("Verification failed:", error);
-                showDecoy();
-            }
-
-            function showDecoy() {
-                 displayMessage(message, 'me');
-                 messageInput.value = '';
-                 autoResizeTextarea();
-                 updateSendButton();
-                 sentNotification.classList.add('show');
-                 setTimeout(() => {
-                     sentNotification.classList.remove('show');
-                 }, 2000);
+                console.error("Authentication request failed:", error);
             }
         }
 
