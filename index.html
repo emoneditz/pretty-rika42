@@ -7,7 +7,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
     <style>
-        :root { --bg-primary: #000000; --bg-secondary: #1a1a1a; --bubble-me: #2d2d2d; --bubble-rika: #333333; --text-primary: #ffffff; --text-secondary: #a0a0a0; --border-color: #404040; --input-bg: #2d2d2d; }
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #1a1a1a;
+            --bubble-me: #2d2d2d;
+            --bubble-rika: #333333;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #404040;
+            --input-bg: #2d2d2d;
+        }
         html, body { height: 100%; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif; }
         body { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-primary); color: var(--text-primary); }
         .chat-container { width: 100vw; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-primary); }
@@ -15,8 +24,12 @@
         .chat-box { flex: 1; padding: 1rem; padding-bottom: calc(1rem + 6rem + env(safe-area-inset-bottom, 0)); overflow-y: auto; scroll-behavior: smooth; background: var(--bg-primary); }
         .message { max-width: 75%; margin: 0.5rem 0; padding: 0.75rem 1rem; border-radius: 1.5rem; clear: both; word-wrap: break-word; position: relative; white-space: pre-wrap; }
         .me { background: var(--bubble-me); color: var(--text-primary); margin-left: auto; border-bottom-right-radius: 0.5rem; }
-        .rika { background: var(--bubble-rika); color: var(--text-primary); margin-right: auto; border-bottom-left-radius: 0.5rem; }
-        .message-time { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.8; margin-top: 0.5rem; float: right; margin-left: 1rem; }
+        .rika {
+            background: var(--bubble-rika);
+            color: var(--text-primary);
+            margin-right: auto;
+            border-bottom-left-radius: 0.5rem;
+        }
         .input-box { position: fixed; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0); display: flex; justify-content: center; align-items: center; padding: 1rem; background: var(--bg-primary); border-top: 1px solid var(--border-color); z-index: 50; }
         .input-content-wrapper { display: flex; align-items: flex-end; width: 100%; max-width: 800px; gap: 0.75rem; }
         .message-input-wrapper { flex: 1; display: flex; align-items: center; background: var(--input-bg); border-radius: 2rem; border: 1px solid var(--border-color); min-height: 3rem; }
@@ -32,7 +45,7 @@
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <img class="w-12 h-12 rounded-full border-2 border-white shadow-md" src="https://raw.githubusercontent.com/rikaeditz/pretty-rika423/main/3017c2ef1b7b654df7651bca2d90ecff.jpg"/>
+            <img class="w-12 h-12 rounded-full border-2 border-white shadow-md" src="https://raw.githubusercontent.com/emoneditz/pretty-rika423/main/3017c2ef1b7b654df7651bca2d90ecff.jpg"/>
             <div class="flex items-center justify-center gap-3 mb-1">
                 <h3 class="font-bold text-xl tracking-wide">pretty Rika!!!</h3>
             </div>
@@ -59,19 +72,13 @@
         const chatBox = document.getElementById('chatBox');
         const sentNotification = document.getElementById('sentNotification');
 
-        function displayFakeMessage(text, sender) {
+        function displayMessage(text, sender) {
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message', sender);
             
             const textContent = document.createElement('p');
             textContent.textContent = text;
             msgDiv.appendChild(textContent);
-
-            const timeDiv = document.createElement('div');
-            timeDiv.classList.add('message-time');
-            const displayDate = new Date();
-            timeDiv.textContent = displayDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-            msgDiv.appendChild(timeDiv);
             
             chatBox.appendChild(msgDiv);
             scrollToBottom();
@@ -102,7 +109,7 @@
             }
 
             function showDecoy() {
-                 displayFakeMessage(message, 'me');
+                 displayMessage(message, 'me');
                  messageInput.value = '';
                  autoResizeTextarea();
                  updateSendButton();
@@ -137,8 +144,8 @@
         });
 
         updateSendButton();
-        displayFakeMessage("hello afu big fan!!! please reply 🤩!! ", "me");
-        displayFakeMessage("Thanks🌟", "rika");
+        displayMessage("hello afu big fan!!! please reply 🤩!! ", "me");
+        displayMessage("Thanks🌟", "rika");
     </script>
 </body>
 </html>
