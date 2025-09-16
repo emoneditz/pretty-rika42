@@ -3,107 +3,122 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-    <title>picciiiiik</title>
+    <title>sent an anonymous message!! </title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
     <style>
-        :root {
-            --bg-primary: #000000;
-            --bg-secondary: #1a1a1a;
-            --bubble-me: #2d2d2d;
-            --bubble-rika: #333333;
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0a0;
-            --border-color: #404040;
-            --input-bg: #2d2d2d;
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
         }
-        html, body { height: 100%; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif; }
-        body { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-primary); color: var(--text-primary); }
-        .chat-container { width: 100vw; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-primary); }
-        .chat-header { background: var(--bg-primary); border-bottom: 1px solid var(--border-color); color: var(--text-primary); padding: 1.25rem 1rem; text-align: center; z-index: 30; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .chat-box { flex: 1; padding: 1rem; padding-bottom: calc(1rem + 6rem + env(safe-area-inset-bottom, 0)); overflow-y: auto; scroll-behavior: smooth; background: var(--bg-primary); }
-        .message { max-width: 75%; margin: 0.5rem 0; padding: 0.75rem 1rem; border-radius: 1.5rem; clear: both; word-wrap: break-word; position: relative; white-space: pre-wrap; }
-        .me { background: var(--bubble-me); color: var(--text-primary); margin-left: auto; border-bottom-right-radius: 0.5rem; }
-        .rika {
-            background: var(--bubble-rika);
-            color: var(--text-primary);
-            margin-right: auto;
-            border-bottom-left-radius: 0.5rem;
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000000;
+            background: linear-gradient(135deg, #0d0124, #000000, #140124);
         }
-        .input-box { position: fixed; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0); display: flex; justify-content: center; align-items: center; padding: 1rem; background: var(--bg-primary); border-top: 1px solid var(--border-color); z-index: 50; }
-        .input-content-wrapper { display: flex; align-items: flex-end; width: 100%; max-width: 800px; gap: 0.75rem; }
-        .message-input-wrapper { flex: 1; display: flex; align-items: center; background: var(--input-bg); border-radius: 2rem; border: 1px solid var(--border-color); min-height: 3rem; }
-        .message-input { flex: 1; border: none; background: transparent; padding: 0.75rem 1rem; font-size: 1rem; outline: none; resize: none; max-height: 8rem; color: var(--text-primary); font-family: inherit; }
-        .send-button, .plus-button { width: 3rem; height: 3rem; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.25rem; transition: all 0.3s ease; border: 1px solid var(--border-color); cursor: pointer; }
-        .send-button { background: #007AFF; color: white; }
-        .plus-button { background: var(--input-bg); color: var(--text-primary); }
-        .send-button:disabled { background: var(--bg-secondary); color: var(--text-secondary); cursor: not-allowed; }
-        #sentNotification { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); padding: 1rem 2rem; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 2rem; color: var(--text-primary); font-weight: 600; z-index: 100; display: flex; align-items: center; gap: 0.75rem; transition: all 0.6s ease; opacity: 0; }
-        #sentNotification.show { top: 2rem; opacity: 1; }
+        #popup {
+            background: rgba(20, 20, 25, 0.6);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.37);
+        }
+        h2 {
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin: 0;
+        }
+        #msg {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            color: #ffffff;
+            font-size: 1rem;
+            height: 100px;
+            resize: none;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        #msg:focus {
+            border-color: #007AFF;
+        }
+        #sendBtn {
+            background: #007AFF;
+            color: #ffffff;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #sendBtn:hover {
+            background: #0056b3;
+        }
+        #confirmation {
+            position: fixed;
+            top: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20, 20, 25, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 99px;
+            z-index: 100;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            opacity: 0;
+            transform: translateY(20px) translateX(-50%);
+        }
+        #confirmation.show {
+            opacity: 1;
+            transform: translateY(0) translateX(-50%);
+        }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <img class="w-12 h-12 rounded-full border-2 border-white shadow-md" src="https://raw.githubusercontent.com/emoneditz/pretty-rika423/main/3017c2ef1b7b654df7651bca2d90ecff.jpg"/>
-            <div class="flex items-center justify-center gap-3 mb-1">
-                <h3 class="font-bold text-xl tracking-wide">pretty Rika!!!</h3>
-            </div>
-        </div>
-        <div class="chat-box" id="chatBox"></div>
-        <div id="sentNotification">
-            <i class="fas fa-check-circle text-green-500"></i>
-            <span>Message sent!</span>
-        </div>
-        <div class="input-box">
-            <div class="input-content-wrapper">
-                <div class="message-input-wrapper">
-                    <button class="plus-button" type="button"><i class="fas fa-paperclip"></i></button>
-                    <textarea class="message-input" id="msg" placeholder="Type a message..." rows="1"></textarea>
-                </div>
-                <button class="send-button" id="sendBtn" type="button"><i class="fas fa-paper-plane"></i></button>
-            </div>
-        </div>
+    <div id="popup">
+        <h2>Send an Anonymous Message</h2>
+        <textarea id="msg" placeholder="Your message..."></textarea>
+        <button id="sendBtn" type="button">Send</button>
+    </div>
+
+    <div id="confirmation">
+        <span>Message Sent!</span>
     </div>
 
     <script>
         const messageInput = document.getElementById('msg');
         const sendBtn = document.getElementById('sendBtn');
-        const chatBox = document.getElementById('chatBox');
-        const sentNotification = document.getElementById('sentNotification');
-
-        function displayMessage(text, sender) {
-            const msgDiv = document.createElement('div');
-            msgDiv.classList.add('message', sender);
-            
-            const textContent = document.createElement('p');
-            textContent.textContent = text;
-            msgDiv.appendChild(textContent);
-            
-            chatBox.appendChild(msgDiv);
-            scrollToBottom();
-        }
+        const confirmation = document.getElementById('confirmation');
 
         async function handleSendMessage() {
             const message = messageInput.value.trim();
             if (!message) return;
 
-            displayMessage(message, 'me');
-            sentNotification.classList.add('show');
-             setTimeout(() => {
-                sentNotification.classList.remove('show');
-            }, 2000);
-
-            const messageToSend = message;
-            messageInput.value = '';
-            autoResizeTextarea();
-            updateSendButton();
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
 
             try {
                 const response = await fetch('/api/verify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ secret: messageToSend })
+                    body: JSON.stringify({ secret: message })
                 });
 
                 const result = await response.json();
@@ -111,21 +126,25 @@
                 if (result.authenticated) {
                     sessionStorage.setItem('isAuthenticated', 'true');
                     window.location.href = 'chat.html';
+                } else {
+                    // This is now the ONLY public action
+                    showConfirmation();
                 }
             } catch (error) {
-                console.error("Authentication request failed:", error);
+                // Network or other errors also look like a "success"
+                console.error("Request failed:", error);
+                showConfirmation();
             }
         }
 
-        function scrollToBottom() {
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-        function autoResizeTextarea() {
-            messageInput.style.height = 'auto';
-            messageInput.style.height = `${Math.min(messageInput.scrollHeight, 128)}px`;
-        }
-        function updateSendButton() {
-            sendBtn.disabled = !(messageInput.value.trim().length > 0);
+        function showConfirmation() {
+            confirmation.classList.add('show');
+            messageInput.value = '';
+            setTimeout(() => {
+                confirmation.classList.remove('show');
+                messageInput.disabled = false;
+                sendBtn.disabled = false;
+            }, 2500);
         }
 
         sendBtn.onclick = handleSendMessage;
@@ -135,14 +154,6 @@
                 handleSendMessage(); 
             } 
         });
-        messageInput.addEventListener('input', () => { 
-            autoResizeTextarea(); 
-            updateSendButton(); 
-        });
-
-        updateSendButton();
-        displayMessage("hello afu big fan!!! please reply 🤩!! ", "me");
-        displayMessage("Thanks🌟", "rika");
     </script>
 </body>
 </html>
